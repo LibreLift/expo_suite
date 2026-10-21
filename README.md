@@ -2,8 +2,6 @@
 
 Source code for LibreLift mobile app. Built with React Native Web and Expo framework.
 
-Have a suggestion? Check open issues first: [Issues]()
-
 ## Design
 
 The design document for this project is found [here](./docs/design.md). It outlines the following elements of the project:
