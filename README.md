@@ -1,6 +1,6 @@
 # expo_suite
 
-Source code for LibreLift mobile app. Built with React Native Web and Expo framework.
+This is the source code for LibreLift mobile app. Built with React Native Web and Expo framework.
 
 ## Design
 
