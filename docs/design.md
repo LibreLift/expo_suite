@@ -1,36 +1,39 @@
-# LibreLift — Design Document
+# LibreLift - Design Document
 
-|                  |                                                                         |
-| ---------------- | ----------------------------------------------------------------------- |
-| **Authors**      | James Teuscher                                                          |
-| **Reviewers**    | [who reviewed it — a teammate, the instructor, a design-review partner] |
-| **Status**       | Draft                                                                   |
-| **Last updated** | 10-16-26                                                                |
-| **Links**        | [proposal] · [repository] · [issue tracker]                             |
+|                  |                                                                                                           |
+| ---------------- | --------------------------------------------------------------------------------------------------------- |
+| **Authors**      | James Teuscher                                                                                            |
+| **Reviewers**    | [who reviewed it — a teammate, the instructor, a design-review partner]                                   |
+| **Status**       | Draft                                                                                                     |
+| **Last updated** | 10-20-26                                                                                                  |
+| **Links**        | [proposal](../cp3/cp3-proposal) · [repository](https://github.com/LibreLift/expo_suite) · [issue tracker] |
 
 ## Revision history
 
-*A design doc changes as the design does. Record each meaningful revision so a reader can tell what the doc said when a decision was made.*
-
-| Date     | Author         | What changed |
-| -------- | -------------- | ------------ |
-| 10-16-26 | James Teuscher | First draft  |
+| Date     | Author         | What changed     |
+| -------- | -------------- | ---------------- |
+| 10-16-26 | James Teuscher | First draft      |
+| 10-20-26 | James Teuscher | First full draft |
 
 ---
 
 ## 1. Context and scope
 
-*One or two paragraphs. What is being built, for whom, and what landscape it sits in. Link the proposal instead of repeating it — a reader who needs the full argument can follow the link.*
+LibreLift is a native mobile app for planning, logging, and tracking workouts for those who want to use their phones to do so. It aims to provide the basic functions of creating reusable workout templates, using a template for a workout and logging reps and weight, and reviewing the details of past workouts. For more information about the context of this project, see the [proposal document](../cp3/cp3-proposal).
 
 ## 2. Goals and non-goals
 
-**Goals** — *what this design must achieve, stated so you could check them:*
+**Goals**
 
-- [goal]
+- Connect to RepDB, an external exercise DB, and load the catalog of ~500 free exercises into the app for use. Besides name, the exercises in the app should be identifiable by target muscles and equipment.
+- Support creation, persistence, editing, and deletion of reusable exercise templates.
+- Support starting, stopping, and completing workout sessions for an existing template. Workout session allow logging repetitions performed and weight used for each exercise in a plan.
+- Support storing "one-rep" maximum weight for certain exercises, and enter weight in template exercises as a percentage of that maximum.
 
 **Non-goals** — *things a reasonable reader would expect this system to do, which it deliberately won't. Carry them over from the proposal; here they bound the design.*
 
-- [non-goal]
+- Social exercising features such as followers/friends, sharing workouts, leaving comments, etc., are excluded. They fall outside the scope of primary user needs.
+- No body composition and fitness goal customization. 
 
 ## 3. System-context diagram
 
@@ -39,6 +42,8 @@ There will only be one type of user interacting with this system. They will crea
 ![diagram](./sys-context.JPG)
 
 ## 4. Architecture and components
+
+*Add auth*
 
 | Component    | Responsibility                                                      | Talks to                | Interface (rough)                     |
 | ------------ | ------------------------------------------------------------------- | ----------------------- | ------------------------------------- |
@@ -53,7 +58,7 @@ There will only be one type of user interacting with this system. They will crea
 
 ### Core flow, traced end to end
 
-*The single most important user action in your MVP, step by step through the components above. If the trace needs a component the table doesn't have, the table is wrong.*
+*Add Auth*
 
 1. User taps the screen to create a plan
 2. View layer sends input to ViewModel
@@ -89,17 +94,15 @@ There will only be one type of user interacting with this system. They will crea
 
 *Entities, their key fields, and how they relate. Mark what the MVP needs and what only the roadmap needs. Key fields, not every column; no copied schemas.*
 
-| Entity   | Key fields                               | Relationships                  | MVP or roadmap |
-| -------- | ---------------------------------------- | ------------------------------ | -------------- |
-| User     | id                                       | has Plans, performs Workouts   | MVP            |
-| Workout  | userId, workoutId?, exerciseIds?, title? | belongs to User, has exercises | MVP            |
-| Exercise | exerciseId, muscles, equipment           | part of Workout                | MVP            |
+| Entity   | Key fields                                          | Relationships                                            | MVP or roadmap |
+| -------- | --------------------------------------------------- | -------------------------------------------------------- | -------------- |
+| User     | id                                                  | has Plans, performs Workouts                             | MVP            |
+| Workout  | userId, workoutId?, exerciseIds?, title?            | belongs to User, has exercises                           | MVP            |
+| Exercise | exerciseId, muscles, equipment, maxWeightPerformed? | part of Workout, max weight used for weight calculations | MVP            |
 
 *Note:* One important distinction that I need to resolve is how to distinguish a template of a workout from a workout that is actively being done or is completed. My initial thought is a supertype of Workout and Exercise, with subtypes/sub-entities, one for a template workout and one for a concrete, logged workout
 
 ## 6. Technology choices and alternatives considered
-
-*One block per significant decision. The alternative must be one a reasonable team would actually pick. Where you did real work to decide — a spike, a benchmark, a prototype — cite it; that evidence is the difference between a preference and a decision.*
 
 ### Decision: What ExerciseDB/CDN will be used
 
@@ -108,22 +111,33 @@ There will only be one type of user interacting with this system. They will crea
 - **Why the chosen option wins, given our goals:** There is a free starter license, and the example images are superior than those in free-exercise-db
 - **Evidence:** The spike utilized RepDB, while a personal side project has utilized free-exercise-db, and the RepDB images are superior, while muscle grouping, exercises available, and instructions are roughly equivalent.
 - **What would change our mind:** If the user base grows enough that the RepDB free license is no longer usable, I would want to switch to the free alternative of free-exercise-db
+### Decision: What DBMS will be used to store user data
+
+- **Chosen**: PostgreSQL
+- **Alternative considered:** SQLite
+- **Why the chosen option wins, given our goals**: PostgreSQL is better for larger applications that will be deployed. It is also provided with Supabase, which is the backend computing service that will be used.
+- **Evidence**: The client-server model of Postgres natively supports more traffic than the file-based model of SQLite. Also, the [Supabase docs](https://supabase.com/docs/guides/database/overview) detail why Postgres is supported for their services.
+- **What would change our mind:** Frankly, there isn't anything that would change my mind from Postgres to SQLite, but potentially if the data access layer becomes a bottleneck, a NoSQL database would be considered.
 
 ## 7. Risks and open questions
 
-*What you don't know yet, stated honestly. Each open question gets an owner and a way to find the answer.*
-
-| Risk or question | Why it matters | Owner  | How we'll find out, and by when           |
-| ---------------- | -------------- | ------ | ----------------------------------------- |
-| [risk]           | [consequence]  | [name] | [spike / test / conversation — milestone] |
+| Risk or question                                                                                                         | Why it matters                                                                                                         | Owner | How we'll find out, and by when                                                                          |
+| ------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- | ----- | -------------------------------------------------------------------------------------------------------- |
+| How precisely to represent workout and exercise templates vs workout and exercise sessions/completions in the data model | Doing so inefficiently can erode DB performance, and add unnecessary overhead to the Data Access component             | James | Do research during milestone 1, determine the ideal data model                                           |
+| How to provision Supabase Edge functions and DB                                                                          | This is where all of the data storage and backend computing will live. Without this, the app does not provide value.   | James | Read Supabase docs and run through quick starts for DB and Edge functions before starting milestone 3    |
+| What method of authentication to use                                                                                     | Poor credential selection can impede user experience, or introduce security overhead (which is not strictly negative.) | James | Determine top 3 credential options and weigh pros and cons. Make a selection before starting milestone 3 |
 
 ## 8. Implementation plan
 
-*The build order at milestone altitude — not a task list. Start with the thinnest vertical slice through the core flow, then widen it.*
-
-| Milestone | What works when it's done       | Depends on |
-| --------- | ------------------------------- | ---------- |
-| 1         | [the thinnest end-to-end slice] | —          |
+| Milestone | What works when it's done                                                                                              | Depends on |
+| --------- | ---------------------------------------------------------------------------------------------------------------------- | ---------- |
+| 1         | The app UI has a few basic screens with stubbed data                                                                   | —          |
+| 2         | The external exercise catalog loads into the app                                                                       | 1          |
+| 3         | User authentication with selected credential method                                                                    | 1          |
+| 4         | Workout templates can be created, edited, and deleted, and persist across app sessions                                 | 2,3        |
+| 5         | Users can record a "one-rep" maximum for exercises, plan a percentage of that maximum in workout templates             | 4          |
+| 6         | Workout templates can be "instantiated" and used in a workout session, logging weights and reps used (saved in-memory) | 5          |
+| 7         | Workout sessions can be completed and logged to the database, then viewed in the app.                                  | 6          |
 
 ---
 
