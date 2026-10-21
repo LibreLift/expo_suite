@@ -9,13 +9,13 @@ The design document for this project is found [here](./docs/design.md). It outli
 - Context and scope
 - Goals and non-goals
 - System-context diagram
-- Components - includes component diagram and step-by-step user flow
-- Data model and ERD
-- Technology decisions and explanations
+- Architecture and components
+- Data model
+- Technology choices and alternatives considered 
 - Risks and open questions
-- Implementation steps and milestones
+- Implementation plan 
 
-This is the starting point for understanding this project and preparing to contribute to it.
+This is the starting point for understanding this project. 
 
 ## Maintainers:
 
