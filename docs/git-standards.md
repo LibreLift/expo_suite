@@ -13,7 +13,7 @@ we work; if you think a rule is wrong, open an issue and say why.
 
 ## Commit messages
 
-**The rule**: Follow [cbeam's 7 rules](https://cbea.ms/git-commit/) for useful commit messages, and prefix all commits with (conventional commit)[https://www.conventionalcommits.org/en/v1.0.0/#summary] types.
+**The rule**: Follow [cbeam's 7 rules](https://cbea.ms/git-commit/) for useful commit messages, and prefix all commits with [conventional commit](https://www.conventionalcommits.org/en/v1.0.0/#summary) types.
 
 **Example**:
 
